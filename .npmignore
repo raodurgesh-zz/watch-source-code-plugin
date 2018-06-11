@@ -1,0 +1,6 @@
+src
+sandbox
+tests
+coverage
+.*
+*.log
