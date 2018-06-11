@@ -19,7 +19,7 @@ npm install --save-dev  watch-source-code-plugin
 
 
 ## Usage
-In the `config-overrides.js` (refer : react-app-rewired [(https://github.com/timarney/react-app-rewired)]) you created for `watch-source-code-plugin` add this code:
+In the `config-overrides.js` (refer : [react-app-rewired](https://github.com/timarney/react-app-rewired)) you created for `watch-source-code-plugin` add this code:
 
 ```
 const { rewireSourceCodeBundle } = require('watch-source-code-plugin');
