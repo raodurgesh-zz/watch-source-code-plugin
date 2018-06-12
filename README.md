@@ -22,7 +22,7 @@ npm install --save-dev  watch-source-code-plugin
 In the `config-overrides.js` (refer : [react-app-rewired](https://github.com/timarney/react-app-rewired)) you created for `watch-source-code-plugin` add this code:
 
 ```
-const { rewireSourceCodeBundle } = require('watch-source-code-plugin');
+const  rewireSourceCodeBundle  = require('watch-source-code-plugin');
 
 /* config-overrides.js */
 module.exports = function override(config, env) {
