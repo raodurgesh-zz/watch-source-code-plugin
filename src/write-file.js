@@ -1,33 +1,34 @@
-import fs from "fs";
-import { createHash } from "crypto";
-import path from "path";
-import _ from "lodash";
-import mkdirp from "mkdirp";
-import chalk from "chalk";
-import moment from "moment";
-import filesize from "filesize";
-import createDebug from "debug";
-const debug = createDebug("write-file-webpack-plugin");
+const fs = require("fs");
+const { createHash } = require("crypto");
+const path = require("path");
+const _ = require("lodash");
+const mkdirp = require("mkdirp");
+const chalk = require("chalk");
+const filesize = require("filesize");
+const moment = require("moment");
+const createDebug = require("debug");
 
-function RemoveFile(directory) {
-  fs.readdir(directory, (err, files) => {
-    if (err) throw err;
-
-    for (const file of files) {
-      if (file.indexOf("hot-update") !== -1) {
-        fs.unlink(path.join(directory, file), err => {
-          if (err) throw err;
-        });
-      }
+function removeFile(filePath) {
+  setTimeout(() => {
+    if (filePath.indexOf("hot-update") !== -1) {
+      fs.unlink(filePath, err => {
+        if (err) throw err;
+      });
     }
-  });
+  }, 200);
 }
 
+const debug = createDebug("write-file-webpack-plugin");
+
+/**
+ * When 'webpack' program is used, constructor name is equal to 'NodeOutputFileSystem'.
+ * When 'webpack-dev-server' program is used, constructor name is equal to 'MemoryFileSystem'.
+ */
 const isMemoryFileSystem = outputFileSystem => {
   return outputFileSystem.constructor.name === "MemoryFileSystem";
 };
 
-export default function WriteFileWebpackPlugin(userOptions) {
+module.exports = function WriteFileWebpackPlugin(userOptions = {}) {
   const options = _.assign(
     {},
     {
@@ -35,8 +36,7 @@ export default function WriteFileWebpackPlugin(userOptions) {
       force: false,
       log: true,
       test: null,
-      useHashIndex: true,
-      publicPath: "/"
+      useHashIndex: true
     },
     userOptions
   );
@@ -71,7 +71,12 @@ export default function WriteFileWebpackPlugin(userOptions) {
       return;
     }
 
-    debug(chalk.dim("[" + moment().format("HH:mm:ss") + "]"), ...append);
+    debug(
+      chalk.dim(
+        "[" + moment().format("HH:mm:ss") + "] [write-file-webpack-plugin]"
+      ),
+      ...append
+    );
   };
 
   const assetSourceHashIndex = {};
@@ -100,7 +105,16 @@ export default function WriteFileWebpackPlugin(userOptions) {
         return false;
       }
 
-      outputPath = options.publicPath;
+      if (
+        _.has(compiler, "options.output.path") &&
+        compiler.options.output.path !== "/"
+      ) {
+        outputPath = compiler.options.output.path;
+      }
+
+      if (!outputPath) {
+        throw new Error("output.path is not defined. Define output.path.");
+      }
 
       log('outputPath is "' + chalk.cyan(outputPath) + '".');
 
@@ -109,14 +123,17 @@ export default function WriteFileWebpackPlugin(userOptions) {
       return setupStatus;
     };
 
+    // eslint-disable-next-line promise/prefer-await-to-callbacks
     const handleAfterEmit = (compilation, callback) => {
       if (!setup()) {
+        // eslint-disable-next-line promise/prefer-await-to-callbacks
         callback();
 
         return;
       }
 
       if (options.exitOnErrors && compilation.errors.length) {
+        // eslint-disable-next-line promise/prefer-await-to-callbacks
         callback();
 
         return;
@@ -156,6 +173,8 @@ export default function WriteFileWebpackPlugin(userOptions) {
           }
         }
 
+        removeFile(outputFilePath);
+
         const assetSize = asset.size();
         const assetSource = Array.isArray(asset.source())
           ? asset.source().join("\n")
@@ -181,11 +200,7 @@ export default function WriteFileWebpackPlugin(userOptions) {
           assetSourceHashIndex[relativeOutputPath] = assetSourceHash;
         }
 
-        const dirName = path.dirname(relativeOutputPath);
-
-        RemoveFile(dirName);
-
-        setTimeout(() => mkdirp.sync(dirName), 10);
+        mkdirp.sync(path.dirname(relativeOutputPath));
 
         try {
           fs.writeFileSync(relativeOutputPath.split("?")[0], assetSource);
@@ -207,6 +222,11 @@ export default function WriteFileWebpackPlugin(userOptions) {
       callback();
     };
 
+    /**
+     * webpack 4+ comes with a new plugin system.
+     *
+     * Check for hooks in-order to support old plugin system
+     */
     if (compiler.hooks) {
       compiler.hooks.afterEmit.tapAsync(
         "write-file-webpack-plugin",
@@ -220,4 +240,4 @@ export default function WriteFileWebpackPlugin(userOptions) {
   return {
     apply
   };
-}
+};

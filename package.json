@@ -1,6 +1,6 @@
 {
   "name": "watch-source-code-plugin",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Source code files used by `webpack-dev-server` is rendered in watch mode at user specified directory through override create-react-app webpack configs without ejecting",
   "main": "./dist/index.js",
   "keywords": [
@@ -33,7 +33,6 @@
     "prepare": "babel --source-maps --copy-files ./src --out-dir ./dist",
     "test": "echo 'Please add tests :-('",
     "readme": "gitdown ./.README/README.md --output-file ./README.md",
-    "precommit": "npm run lint && npm run test",
     "prepublish": "npm run build"
   },
   "devDependencies": {
