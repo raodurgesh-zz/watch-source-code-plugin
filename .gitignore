@@ -7,5 +7,4 @@ node_modules
 !.editorconfig
 !.eslintrc
 !.gitignore
-!.npmignore
 !.travis.yml

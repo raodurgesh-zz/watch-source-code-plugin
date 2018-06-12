@@ -3,20 +3,18 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.rewireWatchSourceCodePlugin = rewireWatchSourceCodePlugin;
 
-var _writeFileWebpackPlugin = require("write-file-webpack-plugin");
+var _writeFile = require("./write-file");
 
-var _writeFileWebpackPlugin2 = _interopRequireDefault(_writeFileWebpackPlugin);
+var _writeFile2 = _interopRequireDefault(_writeFile);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function rewireWatchSourceCodePlugin(config, env) {
   var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
-  config.plugins.push(new _writeFileWebpackPlugin2.default(options));
+  config.plugins.push(new _writeFile2.default(options));
   return config;
 }
-
-exports.default = rewireWatchSourceCodePlugin;
-module.exports = exports["default"];
 //# sourceMappingURL=index.js.map
