@@ -1,5 +1,7 @@
 # watch-source-code-plugin
 
+## (deprecated) use [react-app-rewire-build-dev](https://github.com/raodurgesh/react-app-rewire-build-dev)
+
 
 
 Source code files used by `webpack-dev-server` is rendered in watch mode at user specified directory through override create-react-app webpack configs without ejecting.
